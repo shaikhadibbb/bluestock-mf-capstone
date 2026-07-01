@@ -1,0 +1,45 @@
+# Database files - schema.sql is committed, not the .db
+*.db
+*.sqlite
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.egg-info/
+
+# Jupyter
+.ipynb_checkpoints/
+*.nbconvert/
+
+# Virtual environments
+venv/
+.venv/
+env/
+ENV/
+
+# Environment variables
+.env
+.env.local
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Large generated files (schema.sql tracked, .db not)
+data/db/*.db
+
+# Scratch / temp
+scratch/
+*.tmp
+test_*.py
+create_notebook_*.py

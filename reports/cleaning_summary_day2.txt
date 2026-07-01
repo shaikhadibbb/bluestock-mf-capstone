@@ -1,0 +1,58 @@
+======================================================================
+              BLUESTOCK MUTUAL FUND CAPSTONE — DAY 2 ETL REPORT
+======================================================================
+Dataset File                     | Raw Rows   | Clean Rows | Status  
+----------------------------------------------------------------------
+02_nav_history.csv               | 46000      | 46000      | Green   
+08_investor_transactions.csv     | 32778      | 32778      | Green   
+07_scheme_performance.csv        | 40         | 40         | Green   
+01_fund_master.csv               | 40         | 40         | Green   
+03_aum_by_fund_house.csv         | 90         | 90         | Green   
+04_monthly_sip_inflows.csv       | 48         | 48         | Green   
+05_category_inflows.csv          | 144        | 144        | Green   
+06_industry_folio_count.csv      | 21         | 21         | Green   
+09_portfolio_holdings.csv        | 322        | 322        | Green   
+10_benchmark_indices.csv         | 8050       | 8050       | Green   
+======================================================================
+
+Detailed Data Health Ratings & Verification Details:
+----------------------------------------------------------------------
+• File: 02_nav_history.csv
+  - Health Rating: Green (100% Valid)
+  - Key Notes: Resampled to business days, ffilled gaps. Min: 2022-01-03, Max: 2026-05-29. Dropped 0 invalid rows.
+
+• File: 08_investor_transactions.csv
+  - Health Rating: Green (100% Valid)
+  - Key Notes: Standardised transaction types. Unique Investors: 5000. Dropped 0 invalid rows.
+
+• File: 07_scheme_performance.csv
+  - Health Rating: Green (100% Valid)
+  - Key Notes: Verified returns are numeric. Sharpe Range: 0.80–7.68. Outliers/anomalies flagged: 0.
+
+• File: 01_fund_master.csv
+  - Health Rating: Green (100% Valid)
+  - Key Notes: Parsed dates, normalized string formatting, and deduplicated codes.
+
+• File: 03_aum_by_fund_house.csv
+  - Health Rating: Green (100% Valid)
+  - Key Notes: Normalized fund house casing and parsed dates.
+
+• File: 04_monthly_sip_inflows.csv
+  - Health Rating: Green (100% Valid)
+  - Key Notes: Filled 12 missing yoy_growth_pct values using 2021 historical base inflows.
+
+• File: 05_category_inflows.csv
+  - Health Rating: Green (100% Valid)
+  - Key Notes: Normalized categories and stripped text columns.
+
+• File: 06_industry_folio_count.csv
+  - Health Rating: Green (100% Valid)
+  - Key Notes: Verified count and time consistency.
+
+• File: 09_portfolio_holdings.csv
+  - Health Rating: Green (100% Valid)
+  - Key Notes: Cleaned symbol mappings and sector fields.
+
+• File: 10_benchmark_indices.csv
+  - Health Rating: Green (100% Valid)
+  - Key Notes: Parsed index dates and trimmed index names.

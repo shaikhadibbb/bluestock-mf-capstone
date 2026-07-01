@@ -1,0 +1,257 @@
+================================================================================
+              BLUESTOCK MUTUAL FUND CAPSTONE — SQL QUERY RESULTS
+================================================================================
+
+--------------------------------------------------------------------------------
+ QUERY: -- Q1: Top 5 funds by AUM (scheme level)
+--------------------------------------------------------------------------------
+SQL Code:
+SELECT f.scheme_name, f.fund_house, p.aum_crore
+FROM fact_performance p
+JOIN dim_fund f ON p.amfi_code = f.amfi_code
+ORDER BY p.aum_crore DESC
+LIMIT 5;
+
+Results:
+                                          scheme_name        fund_house  aum_crore
+Mirae Asset Emerging Bluechip Fund - Regular - Growth    Mirae Asset MF    49046.0
+        Kotak Emerging Equity Fund - Regular - Growth Kotak Mahindra MF    47469.0
+       Nippon India Small Cap Fund - Regular - Growth   Nippon India MF    43630.0
+           DSP Top 100 Equity Fund - Regular - Growth   DSP Mutual Fund    41828.0
+                  UTI Mid Cap Fund - Regular - Growth   UTI Mutual Fund    41728.0
+
+
+--------------------------------------------------------------------------------
+ QUERY: -- Q2: Average NAV per month across all funds (2025 only)
+--------------------------------------------------------------------------------
+SQL Code:
+SELECT
+    strftime('%Y-%m', nav_date) AS month,
+    ROUND(AVG(nav), 4) AS avg_nav
+FROM fact_nav
+WHERE nav_date >= '2025-01-01' AND nav_date <= '2025-12-31'
+GROUP BY month
+ORDER BY month;
+
+Results:
+  month  avg_nav
+2025-01 288.0384
+2025-02 291.7446
+2025-03 296.1581
+2025-04 299.4130
+2025-05 303.9397
+2025-06 306.8799
+2025-07 309.7263
+2025-08 313.1804
+2025-09 316.1320
+2025-10 321.4500
+2025-11 325.6812
+2025-12 331.7330
+
+
+--------------------------------------------------------------------------------
+ QUERY: -- Q3: SIP inflow Year-over-Year growth
+--------------------------------------------------------------------------------
+SQL Code:
+SELECT
+    substr(month, 1, 4) AS year,
+    ROUND(SUM(sip_inflow_crore), 0) AS total_sip_inflow_crore,
+    ROUND(AVG(yoy_growth_pct), 2) AS avg_yoy_growth_pct
+FROM fact_sip_industry
+GROUP BY year
+ORDER BY year;
+
+Results:
+year  total_sip_inflow_crore  avg_yoy_growth_pct
+2022                149437.0               32.14
+2023                184763.0               23.49
+2024                269781.0               45.69
+2025                335740.0               25.19
+
+
+--------------------------------------------------------------------------------
+ QUERY: -- Q4: Total transaction volume by state (top 5)
+--------------------------------------------------------------------------------
+SQL Code:
+SELECT state, COUNT(*) AS tx_count, ROUND(SUM(amount_inr)/1e7, 2) AS total_amount_crore
+FROM fact_transactions
+GROUP BY state
+ORDER BY tx_count DESC
+LIMIT 5;
+
+Results:
+         state  tx_count  total_amount_crore
+        Punjab      2965               31.58
+Madhya Pradesh      2931               30.83
+    Tamil Nadu      2806               31.52
+       Gujarat      2780               29.84
+   West Bengal      2748               29.72
+
+
+--------------------------------------------------------------------------------
+ QUERY: -- Q5: Funds with expense ratio below 1%
+--------------------------------------------------------------------------------
+SQL Code:
+SELECT f.scheme_name, f.fund_house, f.plan, f.expense_ratio_pct
+FROM dim_fund f
+WHERE f.expense_ratio_pct < 1.0
+ORDER BY f.expense_ratio_pct ASC;
+
+Results:
+                                         scheme_name               fund_house    plan  expense_ratio_pct
+Nippon India Gilt Securities Fund - Regular - Growth          Nippon India MF Regular               0.55
+        HDFC Short Term Debt Fund - Regular - Growth         HDFC Mutual Fund Regular               0.56
+                Kotak Liquid Fund - Regular - Growth        Kotak Mahindra MF Regular               0.60
+            SBI Bluechip Fund - Direct Plan - Growth          SBI Mutual Fund  Direct               0.66
+       Nippon India Large Cap Fund - Direct - Growth          Nippon India MF  Direct               0.72
+           SBI Small Cap Fund - Direct Plan - Growth          SBI Mutual Fund  Direct               0.72
+            ICICI Pru Liquid Fund - Regular - Growth      ICICI Prudential MF Regular               0.74
+                Axis Bluechip Fund - Direct - Growth         Axis Mutual Fund  Direct               0.75
+        SBI Magnum Gilt Fund - Regular Plan - Growth          SBI Mutual Fund Regular               0.77
+   HDFC Mid-Cap Opportunities Fund - Direct - Growth         HDFC Mutual Fund  Direct               0.78
+                 ABSL Liquid Fund - Regular - Growth Aditya Birla Sun Life MF Regular               0.79
+           ICICI Pru Bluechip Fund - Direct - Growth      ICICI Prudential MF  Direct               0.80
+                      Nippon India Etf Nifty 50 Bees          Nippon India MF  Direct               0.89
+            HDFC Top 100 Fund - Direct Plan - Growth         HDFC Mutual Fund  Direct               0.92
+
+
+--------------------------------------------------------------------------------
+ QUERY: -- Q6: Top 5 funds by 3-year CAGR return
+--------------------------------------------------------------------------------
+SQL Code:
+SELECT f.scheme_name, f.fund_house, f.category, p.return_3yr_pct
+FROM fact_performance p
+JOIN dim_fund f ON p.amfi_code = f.amfi_code
+ORDER BY p.return_3yr_pct DESC
+LIMIT 5;
+
+Results:
+                                   scheme_name               fund_house category  return_3yr_pct
+    SBI Small Cap Fund - Regular Plan - Growth          SBI Mutual Fund   Equity           23.39
+     SBI Small Cap Fund - Direct Plan - Growth          SBI Mutual Fund   Equity           23.14
+        ABSL Small Cap Fund - Regular - Growth Aditya Birla Sun Life MF   Equity           22.38
+        Axis Small Cap Fund - Regular - Growth         Axis Mutual Fund   Equity           20.98
+Nippon India Small Cap Fund - Regular - Growth          Nippon India MF   Equity           20.15
+
+
+--------------------------------------------------------------------------------
+ QUERY: -- Q7: SIP vs Lumpsum vs Redemption split (count and total value)
+--------------------------------------------------------------------------------
+SQL Code:
+SELECT
+    transaction_type,
+    COUNT(*)                            AS tx_count,
+    ROUND(SUM(amount_inr)/1e7, 2)      AS total_crore,
+    ROUND(AVG(amount_inr), 0)          AS avg_amount_inr
+FROM fact_transactions
+GROUP BY transaction_type
+ORDER BY tx_count DESC;
+
+Results:
+transaction_type  tx_count  total_crore  avg_amount_inr
+             SIP     19716        21.72         11018.0
+         Lumpsum      8095       205.98        254456.0
+      Redemption      4967       124.45        250559.0
+
+
+--------------------------------------------------------------------------------
+ QUERY: -- Q8: AUM growth for SBI Mutual Fund over time
+--------------------------------------------------------------------------------
+SQL Code:
+SELECT date, fund_house, aum_lakh_crore, aum_crore
+FROM fact_aum
+WHERE fund_house = 'SBI Mutual Fund'
+ORDER BY date;
+
+Results:
+      date      fund_house  aum_lakh_crore  aum_crore
+2022-03-31 SBI Mutual Fund            6.05   605000.0
+2022-09-30 SBI Mutual Fund            6.30   630000.0
+2023-03-31 SBI Mutual Fund            7.17   717000.0
+2023-09-30 SBI Mutual Fund            8.45   845000.0
+2024-03-31 SBI Mutual Fund           10.00  1000000.0
+2024-09-30 SBI Mutual Fund           10.80  1080000.0
+2024-12-31 SBI Mutual Fund           11.14  1114000.0
+2025-03-31 SBI Mutual Fund           12.50  1250000.0
+2025-12-31 SBI Mutual Fund           12.50  1250000.0
+
+
+--------------------------------------------------------------------------------
+ QUERY: -- Q9: Average SIP amount by age group
+--------------------------------------------------------------------------------
+SQL Code:
+SELECT
+    t.age_group,
+    COUNT(*)                          AS sip_count,
+    ROUND(AVG(t.amount_inr), 0)       AS avg_sip_amount
+FROM fact_transactions t
+WHERE t.transaction_type = 'SIP'
+GROUP BY t.age_group
+ORDER BY t.age_group;
+
+Results:
+age_group  sip_count  avg_sip_amount
+    18-25       2949         10953.0
+    26-35       8063         10987.0
+    36-45       4926         10886.0
+    46-55       2300         11137.0
+      56+       1478         11575.0
+
+
+--------------------------------------------------------------------------------
+ QUERY: -- Q10: Funds with Sharpe ratio above 1.5 (strong risk-adjusted performers)
+--------------------------------------------------------------------------------
+SQL Code:
+SELECT f.scheme_name, f.fund_house, f.category, p.sharpe_ratio, p.return_3yr_pct, p.risk_grade
+FROM fact_performance p
+JOIN dim_fund f ON p.amfi_code = f.amfi_code
+WHERE p.sharpe_ratio > 1.5
+ORDER BY p.sharpe_ratio DESC;
+
+Results:
+                                 scheme_name               fund_house category  sharpe_ratio  return_3yr_pct risk_grade
+    ICICI Pru Liquid Fund - Regular - Growth      ICICI Prudential MF     Debt          7.68            7.68        Low
+        Kotak Liquid Fund - Regular - Growth        Kotak Mahindra MF     Debt          6.18            6.18        Low
+         ABSL Liquid Fund - Regular - Growth Aditya Birla Sun Life MF     Debt          5.14            5.14        Low
+HDFC Short Term Debt Fund - Regular - Growth         HDFC Mutual Fund     Debt          1.84            7.37        Low
+SBI Magnum Gilt Fund - Regular Plan - Growth          SBI Mutual Fund     Debt          1.52            6.07        Low
+
+
+--------------------------------------------------------------------------------
+ QUERY: -- Q11 (BONUS): Fund Health Scorecard — Return, Risk, Cost in one view
+--------------------------------------------------------------------------------
+SQL Code:
+SELECT
+    f.scheme_name,
+    f.fund_house,
+    f.category,
+    p.return_3yr_pct,
+    p.sharpe_ratio,
+    p.max_drawdown_pct,
+    p.expense_ratio_pct,
+    ROUND(
+        (p.return_3yr_pct * 0.3) +
+        (p.sharpe_ratio * 5 * 0.25) +
+        ((100 + p.max_drawdown_pct) * 0.2) +
+        ((2.5 - p.expense_ratio_pct) * 10 * 0.15),
+    2) AS composite_score
+FROM fact_performance p
+JOIN dim_fund f ON p.amfi_code = f.amfi_code
+ORDER BY composite_score DESC
+LIMIT 10;
+
+Results:
+                                         scheme_name               fund_house category  return_3yr_pct  sharpe_ratio  max_drawdown_pct  expense_ratio_pct  composite_score
+            ICICI Pru Liquid Fund - Regular - Growth      ICICI Prudential MF     Debt            7.68          7.68             -2.62               0.74            34.02
+                Kotak Liquid Fund - Regular - Growth        Kotak Mahindra MF     Debt            6.18          6.18             -3.81               0.60            31.67
+                 ABSL Liquid Fund - Regular - Growth Aditya Birla Sun Life MF     Debt            5.14          5.14             -3.66               0.79            29.80
+          SBI Small Cap Fund - Regular Plan - Growth          SBI Mutual Fund   Equity           23.39          0.94            -13.35               1.43            27.13
+        HDFC Short Term Debt Fund - Regular - Growth         HDFC Mutual Fund     Debt            7.37          1.84             -6.01               0.56            26.22
+              Axis Small Cap Fund - Regular - Growth         Axis Mutual Fund   Equity           20.98          0.84            -14.45               1.38            26.13
+        SBI Magnum Gilt Fund - Regular Plan - Growth          SBI Mutual Fund     Debt            6.07          1.52             -2.30               0.77            25.86
+           SBI Small Cap Fund - Direct Plan - Growth          SBI Mutual Fund   Equity           23.14          0.93            -24.78               0.72            25.82
+Nippon India Gilt Securities Fund - Regular - Growth          Nippon India MF     Debt            5.31          1.33             -2.23               0.55            25.73
+               DSP Small Cap Fund - Regular - Growth          DSP Mutual Fund   Equity           20.08          0.80            -17.01               1.52            25.09
+
+
+================================================================================

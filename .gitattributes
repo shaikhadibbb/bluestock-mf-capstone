@@ -1,0 +1,4 @@
+*.ipynb linguist-documentation=true
+*.twbx linguist-documentation=true
+*.pdf linguist-documentation=true
+*.pptx linguist-documentation=true
